@@ -1,10 +1,10 @@
 import type * as babel from '@babel/core';
 import * as t from '@babel/types';
-import accessorVariable from './accessor-variable';
-import getImportIdentifier from './get-import-identifier';
+import { accessorVariable } from './accessor-variable';
+import { getImportIdentifier } from './get-import-identifier';
 import type { State } from './types';
 
-export default function memoVariable(
+export function memoVariable(
   state: State,
   path: babel.NodePath,
   memoIdentifier: t.Identifier,
@@ -18,28 +18,29 @@ export default function memoVariable(
   if (state.opts.dev) {
     exprs.push(t.identifier('undefined'));
     if (optionsIdentifier) {
-      exprs.push(t.callExpression(
-        t.memberExpression(
-          t.identifier('Object'),
-          t.identifier('assign'),
+      exprs.push(
+        t.callExpression(
+          t.memberExpression(t.identifier('Object'), t.identifier('assign')),
+          [
+            t.objectExpression([
+              t.objectProperty(
+                t.identifier('name'),
+                t.stringLiteral(memoIdentifier.name),
+              ),
+            ]),
+            optionsIdentifier,
+          ],
         ),
-        [
-          t.objectExpression([
-            t.objectProperty(
-              t.identifier('name'),
-              t.stringLiteral(memoIdentifier.name),
-            ),
-          ]),
-          optionsIdentifier,
-        ],
-      ));
+      );
     } else {
-      exprs.push(t.objectExpression([
-        t.objectProperty(
-          t.identifier('name'),
-          t.stringLiteral(memoIdentifier.name),
-        ),
-      ]));
+      exprs.push(
+        t.objectExpression([
+          t.objectProperty(
+            t.identifier('name'),
+            t.stringLiteral(memoIdentifier.name),
+          ),
+        ]),
+      );
     }
   } else if (optionsIdentifier) {
     exprs.push(t.identifier('undefined'));
